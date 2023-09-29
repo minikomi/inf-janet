@@ -96,8 +96,8 @@ of command, consisting of a host and port
 number (e.g. (\"localhost\" . 5555)).  That's useful if you're
 often connecting to a remote REPL process."
   :type '(choice (string)
-                 (repeat string)
-                 (cons string integer))
+          (repeat string)
+          (cons string integer))
   :group 'inf-janet)
 
 (defcustom inf-janet-load-command "(load \"%s\")\n"
@@ -110,7 +110,12 @@ often connecting to a remote REPL process."
   :type 'regexp
   :group 'inf-janet)
 
-(defcustom inf-janet-subprompt (rx "repl:" (+ digit) ":(" (opt "`") "> ")
+(defcustom inf-janet-subprompt
+  (rx "repl:"
+      (one-or-more digit)
+      ":"
+      (one-or-more (or "(" "{" "[" "\"" "`"))
+      "> ")
   "Regexp to recognize subprompts in the Inferior janet mode."
   :type 'regexp
   :group 'inf-janet)
@@ -212,10 +217,10 @@ Fallback to `default-directory.' if not within a project."
 
 ;;;###autoload
 (defun inf-janet-connect (host port)
-	"Connect to janet repl over net with HOST:PORT."
-	(interactive (list (read-string "Host: " "127.0.0.1")
-					   (read-number "Port: " 8001)))
-	(run-janet (cons host port)))
+  "Connect to janet repl over net with HOST:PORT."
+  (interactive (list (read-string "Host: " "127.0.0.1")
+                     (read-number "Port: " 8001)))
+  (run-janet (cons host port)))
 
 (defun inf-janet-eval-region (start end &optional and-go)
   (interactive "r\nP")
@@ -225,6 +230,15 @@ Fallback to `default-directory.' if not within a project."
    (inf-janet-proc)
    (string-trim (buffer-substring-no-properties start end)))
   (if and-go (inf-janet-switch-to-repl t)))
+
+(defun inf-janet-eval-region-silently (start end)
+  (interactive "r")
+  ;; replace comint-preoutput-filter-functions
+  ;; with a function that simply outputs "ok"
+  ;; just for this invocation
+  (let ((comint-preoutput-filter-functions
+         (list (lambda (str) "ok"))))
+    (inf-janet-eval-region start end)))
 
 (defun inf-janet-eval-string (s)
   "Evaluate a string and return a cons pair of the output and return value."
