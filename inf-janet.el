@@ -175,17 +175,23 @@ often connecting to a remote REPL process."
   '("_darcs")
   "A list of files that can be considered project markers.")
 
+(defun inf-janet-find-project-dot-janet-directory ()
+  "Walk up the directories from the current file to find a directory containing 'project.janet'."
+  (locate-dominating-file (buffer-file-name) "project.janet"))
+
 (defun inf-janet-project-root ()
   "Retrieve the root directory of a project if available.
 
 Fallback to `default-directory.' if not within a project."
-  (or (when (functionp 'projectile-project-root) (projectile-project-root))
-      (car (remove nil
-                   (mapcar (lambda
-                             (file)
-                             (locate-dominating-file default-directory file))
-                           inf-janet-project-root-files)))
-      default-directory))
+  (or
+   (inf-janet-find-project-dot-janet-directory)
+   (when (functionp 'projectile-project-root) (projectile-project-root))
+   (car (remove nil
+                (mapcar (lambda
+                          (file)
+                          (locate-dominating-file default-directory file))
+                        inf-janet-project-root-files)))
+   default-directory))
 
 (defun inf-janet-clear-repl-buffer ()
   (interactive)
