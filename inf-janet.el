@@ -11,14 +11,14 @@
 ;;    (add-hook 'janet-mode-hook #'inf-janet-minor-mode)
 
 (require 'comint)
-(require 'janet-mode)
+(require 'janet-ts-mode)
 (require 'rx)
 (require 's)
 (require 'dash)
 
 (defgroup inf-janet nil
   "Run an external janet process (REPL) in an Emacs buffer."
-  :group 'janet-mode)
+  :group 'janet-ts-mode)
 
 (defvar inf-janet-syntax-table
   (let ((table (make-syntax-table)))
@@ -131,7 +131,7 @@ often connecting to a remote REPL process."
 
 (define-derived-mode inf-janet-mode comint-mode "Inferior janet"
   :syntax-table inf-janet-syntax-table
-  (setq-local font-lock-defaults '(janet-highlights))
+  ;;(setq-local font-lock-defaults '(janet-highlights))
   (setq comint-prompt-regexp inf-janet-prompt)
   (setq mode-line-process '(":%s"))
   ;; (scheme-mode-variables)
@@ -331,7 +331,7 @@ With prefix argument EOB-P, positions cursor at end of buffer."
 This holds a cons cell of the form `(DIRECTORY . FILE)'
 describing the last `inf-janet-load-file' command.")
 
-(defcustom inf-janet-source-modes '(janet-mode)
+(defcustom inf-janet-source-modes '(janet-ts-mode)
   "Used to determine if a buffer contains source code.
 If it's loaded into a buffer that is in one of these major modes, it's
 considered a janet source file by `inf-janet-load-file'.
